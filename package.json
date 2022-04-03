@@ -1,0 +1,20 @@
+{
+  "name": "graphs2matrix",
+  "version": "1.0.0",
+  "description": "SandBox repo to experiment with graphs nodes using matrix using pixijs to visualise data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d13nunes/graphs2matrix_pixi.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/d13nunes/graphs2matrix_pixi/issues"
+  },
+  "homepage": "https://github.com/d13nunes/graphs2matrix_pixi#readme"
+}
