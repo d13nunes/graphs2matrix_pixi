@@ -8,62 +8,66 @@
  * - Adds Example Screen once loading is complete
  * - Subscribes and Dispatches to AppStore & DOM
  */
-import { utils, Container } from 'pixi.js';
+import { Texture, Application, Sprite, Graphics } from 'pixi.js';
 import './index.html';
-import Renderer from './Renderer/Renderer';
-import { AnimationStore } from './stores/Store';
-import Store from './stores/Store';
-import Example from './screens/Example';
-import Loader from './screens/Loader';
-import ColorFilter from './filters/color/color';
-import { updateFilterColor, updateFilterIsOn } from './stores/AppStore';
-import BG from './displayobjects/Background/soft.jpg';
 import LOGO from './displayobjects/Logo/logo@2x.png';
+import { canvasWidth, canvasHeight } from './constants/AppConstants';
 
-const renderer = new Renderer({ resolution: window.devicePixelRatio }); // an extension of WebGLRenderer which dispatches to RendererStore
-const app = new Container(); // Auto scale to screen size, subscribed to RendererStore
-const loader = new Loader(); // Basic Loading screen
 
-// Controls for filter/DOM Redux example
-const colorOnInput = document.querySelector('#checkbox');
-const colorValueInput = document.querySelector('#color');
-const colorFilter = new ColorFilter();
+let app = new Application({ width: canvasWidth, height: canvasHeight, backgroundColor: 0xff00ff });
+document.body.appendChild(app.view);
 
-// append renderer to DOM
-document.body.appendChild(renderer.view);
+const circle = new Sprite(Texture.WHITE);
+circle.x = 200;
+circle.y = 200;
+circle.width = 50;
+circle.height = 50;
+app.stage.addChild(circle);
 
-// animate loop for render
-AnimationStore.subscribe(() => {
-  renderer.render(app);
+
+function createCircle() {
+  const circle = new Graphics()
+  circle.beginFill(0xffffff)
+  circle.drawCircle(30, 30, 30)
+  circle.x = 100;
+  circle.y = 100;
+  circle.endFill()
+  return circle
+}
+
+
+// let circle = createCircle()
+circle.interactive = true;
+circle.dragging = false
+circle.on('mousedown', function (e) {
+  console.log('Mouse clicked');
+  console.log('X', e.data.global.x, 'Y', e.data.global.y);
+})
+app.stage.on('mousedown', function (e) {
+  console.log('Mouse clicked');
+  console.log('X', e.data.global.x, 'Y', e.data.global.y);
+
+  circle.x = e.data.global.x;
+  circle.y = e.data.global.y;
+  circle.dragging = true;
+})
+
+circle.on('mousemove', function (e) {
+  console.log('Dragging');
+
+  if (circle.dragging) {
+    console.log('Dragging11');
+    circle.x = e.data.global.x;
+    circle.y = e.data.global.y;
+  }
 });
 
-// Update DOM and App.filters from AppStore
-Store.subscribe(() => {
-  const { color, coloron } = Store.getState().App;
-  colorOnInput.checked = coloron;
-  colorValueInput.value = utils.hex2string(color);
-  colorFilter.color = color;
-  app.filters = coloron ? [colorFilter] : [];
+circle.on('mouseup', function (e) {
+  console.log('Moving');
+
+  circle.x = e.data.global.x;
+  circle.y = e.data.global.y;
+  // circle.dragging = false;
 });
 
-// Dispatch from DOM to AppStore
-colorValueInput.addEventListener('change', (v) =>
-  Store.dispatch(updateFilterColor(v.currentTarget.value))
-);
-colorOnInput.addEventListener('change', (v) =>
-  Store.dispatch(updateFilterIsOn(v.currentTarget.checked))
-);
-
-// Add loader to App Display Object and start loading assets
-app.addChild(loader);
-loader.start([BG, LOGO]);
-
-// remove loader then show example once asset loading is complete
-loader.onLoaded(() => {
-  const example = new Example();
-  app.removeChild(loader);
-  app.addChild(example);
-});
-
-// start the render loop
-renderer.start();
+app.stage.addChild(circle)
